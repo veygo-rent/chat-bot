@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8E31C60F2E35E2830046D9A9 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 8E31C60E2E35E27F0046D9A9 /* .gitignore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		8E31C5FE2E35E1460046D9A9 /* chat-bot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "chat-bot.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8E31C60E2E35E27F0046D9A9 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +37,7 @@
 		8E31C5F52E35E1460046D9A9 = {
 			isa = PBXGroup;
 			children = (
+				8E31C60E2E35E27F0046D9A9 /* .gitignore */,
 				8E31C6002E35E1460046D9A9 /* chat-bot */,
 				8E31C5FF2E35E1460046D9A9 /* Products */,
 			);
@@ -109,6 +115,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E31C60F2E35E2830046D9A9 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
