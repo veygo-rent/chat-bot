@@ -21,6 +21,25 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
+            HStack {
+                Text("The Apple Chat Bot")
+                    .font(.title2)
+                    .bold()
+                Spacer()
+                Button(action: {
+                    messages.removeAll()
+                }) {
+                    Text("Remove All")
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.red)
+                        .cornerRadius(20)
+                }
+            }
+            .padding(5)
+            .padding(.horizontal)
+            
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 12) {
