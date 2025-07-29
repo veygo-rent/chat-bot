@@ -8,37 +8,87 @@
 import SwiftUI
 import FoundationModels
 
+struct Message: Identifiable {
+    let id = UUID()
+    let text: String
+    let isUser: Bool
+}
+
 struct ContentView: View {
-    @State var prompt: String = ""
-    @State var result: String = ""
+    @State private var messages: [Message] = []
+    @State private var prompt: String = ""
     let session = LanguageModelSession()
+    
     var body: some View {
-        ScrollView {
-            VStack (spacing: 20) {
-                TextField("Enter a prompt", text: $prompt)
-                Text("Result: \(result)")
-                HStack {
-                    Button {
-                        prompt = ""
-                    } label: {
-                        Text("Clear")
-                    }
-                    Button {
-                        result = "Loading..."
-                        Task {
-                            do {
-                                let response = try await session.respond(to: prompt)
-                                result = response.content
-                            } catch {
-                                result = "Error: \(error.localizedDescription)"
+        VStack {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 12) {
+                        ForEach(messages) { message in
+                            HStack {
+                                if message.isUser {
+                                    Spacer()
+                                    Text(message.text)
+                                        .padding()
+                                        .background(Color.blue.opacity(0.7))
+                                        .foregroundColor(.white)
+                                        .cornerRadius(12)
+                                } else {
+                                    Text(message.text)
+                                        .padding()
+                                        .background(Color.gray.opacity(0.2))
+                                        .foregroundColor(.black)
+                                        .cornerRadius(12)
+                                    Spacer()
+                                }
                             }
+                            .id(message.id)
                         }
-                    } label: {
-                        Text("Ask")
+                    }
+                    .padding()
+                }
+                .onChange(of: messages.count) { _ in
+                    if let last = messages.last {
+                        withAnimation {
+                            proxy.scrollTo(last.id, anchor: .bottom)
+                        }
                     }
                 }
+            }
+            
+            Divider()
+            
+            HStack {
+                TextField("Enter your message", text: $prompt)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(minHeight: 30)
 
-            }.padding(20)
+                Button("Send") {
+                    sendMessage()
+                }
+                .disabled(prompt.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+            .padding()
+        }
+    }
+    
+    func sendMessage() {
+        let userMessage = Message(text: prompt, isUser: true)
+        messages.append(userMessage)
+        let currentPrompt = prompt
+        prompt = ""
+
+        Task {
+            let loadingMessage = Message(text: "Thinking...", isUser: false)
+            messages.append(loadingMessage)
+            do {
+                let response = try await session.respond(to: currentPrompt)
+                messages.removeLast() // Remove "Thinking..."
+                messages.append(Message(text: response.content, isUser: false))
+            } catch {
+                messages.removeLast()
+                messages.append(Message(text: "Error: \(error.localizedDescription)", isUser: false))
+            }
         }
     }
 }
