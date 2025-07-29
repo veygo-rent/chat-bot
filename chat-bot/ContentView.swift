@@ -60,13 +60,27 @@ struct ContentView: View {
             
             HStack {
                 TextField("Enter your message", text: $prompt)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .frame(minHeight: 30)
+                    .padding(10)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(20)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                    )
+                    .frame(minHeight: 36)
 
-                Button("Send") {
+                Button(action: {
                     sendMessage()
+                }) {
+                    Text("Send")
+                        .foregroundColor(.white)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 20)
+                        .background(Color.blue)
+                        .cornerRadius(20)
                 }
                 .disabled(prompt.trimmingCharacters(in: .whitespaces).isEmpty)
+                .opacity(prompt.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
             }
             .padding()
         }
