@@ -5,6 +5,7 @@
 //  Created by Shenghong Zhou on 7/27/25.
 //
 
+import UIKit
 import SwiftUI
 import FoundationModels
 
@@ -22,11 +23,12 @@ struct ContentView: View {
     var body: some View {
         VStack {
             HStack {
-                Text("The Apple Chat Bot")
+                Text("Veygo Chat")
                     .font(.title2)
                     .bold()
                 Spacer()
                 Button(action: {
+                    hapticFeedback(style: .medium)
                     session = LanguageModelSession()
                     messages.removeAll()
                 }) {
@@ -53,12 +55,32 @@ struct ContentView: View {
                                         .background(Color.blue.opacity(0.7))
                                         .foregroundColor(.white)
                                         .cornerRadius(12)
+                                        .contextMenu {
+                                            Button(action: {
+                                                UIPasteboard.general.string = message.text
+                                            }) {
+                                                Label("Copy", systemImage: "doc.on.doc")
+                                            }
+                                        }
+                                        .onLongPressGesture {
+                                            hapticFeedback(style: .light)
+                                        }
                                 } else {
                                     Text(message.text)
                                         .padding()
                                         .background(Color.gray.opacity(0.2))
                                         .foregroundColor(.black)
                                         .cornerRadius(12)
+                                        .contextMenu {
+                                            Button(action: {
+                                                UIPasteboard.general.string = message.text
+                                            }) {
+                                                Label("Copy", systemImage: "doc.on.doc")
+                                            }
+                                        }
+                                        .onLongPressGesture {
+                                            hapticFeedback(style: .light)
+                                        }
                                     Spacer()
                                 }
                             }
@@ -90,6 +112,7 @@ struct ContentView: View {
                     .frame(minHeight: 36)
 
                 Button(action: {
+                    hapticFeedback(style: .medium)
                     sendMessage()
                 }) {
                     Text("Send")
@@ -124,6 +147,10 @@ struct ContentView: View {
                 messages.append(Message(text: "Error: \(error.localizedDescription)", isUser: false))
             }
         }
+    }
+    
+    func hapticFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
+        UIImpactFeedbackGenerator(style: style).impactOccurred()
     }
 }
 
