@@ -13,6 +13,11 @@ struct Message: Identifiable {
     let id = UUID()
     let text: String
     let isUser: Bool
+    var rating: Rating?     // The response is good or bad
+    
+    enum Rating {
+        case good, bad
+    }
 }
 
 struct ContentView: View {
@@ -72,6 +77,30 @@ struct ContentView: View {
                                         .foregroundColor(.black)
                                         .cornerRadius(12)
                                         .contextMenu {
+                                            if message.rating != .good {
+                                                Button(action: {
+                                                    rateMessage(message: message, rating: .good)
+                                                }) {
+                                                    Label("Good Rating", systemImage: "hand.thumbsup")
+                                                }
+                                            }
+                                            
+                                            if message.rating != .bad {
+                                                Button(action: {
+                                                    rateMessage(message: message, rating: .bad)
+                                                }) {
+                                                    Label("Bad Rating", systemImage: "hand.thumbsdown")
+                                                }
+                                            }
+                                            
+                                            if message.rating != nil {
+                                                Button(role: .destructive, action: {
+                                                    clearRating(message: message)
+                                                }) {
+                                                    Label("Clear Rating", systemImage: "xmark.circle")
+                                                }
+                                            }
+                                            
                                             Button(action: {
                                                 UIPasteboard.general.string = message.text
                                             }) {
@@ -82,6 +111,14 @@ struct ContentView: View {
                                             hapticFeedback(style: .light)
                                         }
                                     Spacer()
+                                }
+                                
+                                // Show ratings
+                                if let rating = message.rating {
+                                    Image(systemName: rating == .good ? "hand.thumbsup.fill" : "hand.thumbsdown.fill")
+                                        .foregroundColor(rating == .good ? .green : .red)
+                                        .padding(4)
+                                        .font(.title2)
                                 }
                             }
                             .id(message.id)
@@ -146,6 +183,18 @@ struct ContentView: View {
                 messages.removeLast()
                 messages.append(Message(text: "Error: \(error.localizedDescription)", isUser: false))
             }
+        }
+    }
+    
+    func rateMessage(message: Message, rating: Message.Rating) {
+        if let index = messages.firstIndex(where: { $0.id == message.id }) {
+            messages[index].rating = rating
+        }
+    }
+    
+    func clearRating(message: Message) {
+        if let index = messages.firstIndex(where: { $0.id == message.id }) {
+            messages[index].rating = nil
         }
     }
     
