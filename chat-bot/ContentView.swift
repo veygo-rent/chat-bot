@@ -17,7 +17,7 @@ struct Message: Identifiable {
 struct ContentView: View {
     @State private var messages: [Message] = []
     @State private var prompt: String = ""
-    let session = LanguageModelSession()
+    @State private var session = LanguageModelSession()
     
     var body: some View {
         VStack {
@@ -27,6 +27,7 @@ struct ContentView: View {
                     .bold()
                 Spacer()
                 Button(action: {
+                    session = LanguageModelSession()
                     messages.removeAll()
                 }) {
                     Text("Remove All")
