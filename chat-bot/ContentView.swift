@@ -7,6 +7,7 @@
 
 import UIKit
 import SwiftUI
+import Combine
 import FoundationModels
 
 struct Message: Identifiable {
@@ -20,10 +21,29 @@ struct Message: Identifiable {
     }
 }
 
+class KeyboardResponder: ObservableObject {
+    @Published var currentHeight: CGFloat = 0
+    private var cancellableSet: Set<AnyCancellable> = []
+
+    init() {
+        let keyboardWillShow = NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .compactMap { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect }
+            .map { $0.height }
+
+        let keyboardWillHide = NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+            .map { _ in CGFloat(0) }
+
+        Publishers.Merge(keyboardWillShow, keyboardWillHide)
+            .assign(to: \.currentHeight, on: self)
+            .store(in: &cancellableSet)
+    }
+}
+
 struct ContentView: View {
     @State private var messages: [Message] = []
     @State private var prompt: String = ""
     @State private var session = LanguageModelSession()
+    @ObservedObject private var keyboard = KeyboardResponder()
     
     var body: some View {
         VStack {
@@ -135,8 +155,6 @@ struct ContentView: View {
                 }
             }
             
-            Divider()
-            
             HStack {
                 TextField("Enter your message", text: $prompt)
                     .padding(10)
@@ -163,7 +181,14 @@ struct ContentView: View {
                 .opacity(prompt.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
             }
             .padding()
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 2)
+            .padding(.horizontal, 12)
+            .padding(.bottom, keyboard.currentHeight == 0 ? 20 : keyboard.currentHeight)
+            .animation(.easeOut(duration: 0.25), value: keyboard.currentHeight)
         }
+        .edgesIgnoringSafeArea(.bottom)
     }
     
     func sendMessage() {
